@@ -1,0 +1,88 @@
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.tasks-site/site.xml.bak	2012-07-02 09:23:09.000000000 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.tasks-site/site.xml	2012-07-03 16:29:28.145494286 +0200
+@@ -31,9 +31,9 @@
+    <feature url="features/org.eclipse.mylyn.sdk_feature_0.0.0.jar" id="org.eclipse.mylyn.sdk_feature" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+-   <feature url="features/org.eclipse.mylyn.test_feature_0.0.0.jar" id="org.eclipse.mylyn.test_feature" version="0.0.0">
++   <!--feature url="features/org.eclipse.mylyn.test_feature_0.0.0.jar" id="org.eclipse.mylyn.test_feature" version="0.0.0">
+       <category name="SDK"/>
+-   </feature>
++   </feature-->
+    <category-def name="Features" label="Mylyn Tasks Features">
+       <description>
+          Tools.
+--- org.eclipse.mylyn/org.eclipse.mylyn-site/site.xml.sav	2014-03-28 12:13:02.000000000 +0200
++++ org.eclipse.mylyn/org.eclipse.mylyn-site/site.xml	2014-03-31 18:32:29.166866675 +0300
+@@ -36,12 +36,12 @@
+    <feature url="features/org.eclipse.mylyn.cvs_0.0.0.jar" id="org.eclipse.mylyn.cvs" version="0.0.0">
+       <category name="Integration"/>
+    </feature>
+-   <feature url="features/org.eclipse.mylyn.gerrit.feature_0.0.0.jar" id="org.eclipse.mylyn.gerrit.feature" version="0.0.0">
++   <!--feature url="features/org.eclipse.mylyn.gerrit.feature_0.0.0.jar" id="org.eclipse.mylyn.gerrit.feature" version="0.0.0">
+       <category name="Integration"/>
+    </feature>
+    <feature url="features/org.eclipse.mylyn.gerrit.dashboard.feature_0.0.0.jar" id="org.eclipse.mylyn.gerrit.dashboard.feature" version="0.0.0">
+       <category name="Integration"/>
+-   </feature>
++   </feature-->
+    <feature url="features/org.eclipse.mylyn.git_0.0.0.jar" id="org.eclipse.mylyn.git" version="0.0.0">
+       <category name="Integration"/>
+    </feature>
+@@ -76,6 +76,9 @@
+    <feature url="features/org.eclipse.mylyn.commons_0.0.0.jar" id="org.eclipse.mylyn.commons" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
++   <feature url="features/org.eclipse.mylyn.commons.activity_0.0.0.jar" id="org.eclipse.mylyn.commons.activity" version="0.0.0">
++      <category name="SDK"/>
++   </feature>
+    <feature url="features/org.eclipse.mylyn.commons.identity_0.0.0.jar" id="org.eclipse.mylyn.commons.identity" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+@@ -109,21 +109,21 @@
+    <feature url="features/org.eclipse.mylyn.htmltext_0.0.0.jar" id="org.eclipse.mylyn.htmltext" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+-   <feature url="features/org.eclipse.mylyn.reviews.feature_0.0.0.jar" id="org.eclipse.mylyn.reviews.feature" version="0.0.0">
++   <!--feature url="features/org.eclipse.mylyn.reviews.feature_0.0.0.jar" id="org.eclipse.mylyn.reviews.feature" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+    <feature url="features/org.eclipse.mylyn.reviews.sdk.feature_0.0.0.jar" id="org.eclipse.mylyn.reviews.sdk.feature" version="0.0.0">
+       <category name="SDK"/>
+-   </feature>
++   </feature-->
+    <feature url="features/org.eclipse.mylyn.sdk_feature_0.0.0.jar" id="org.eclipse.mylyn.sdk_feature" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+    <feature url="features/org.eclipse.mylyn.tasks.ide_0.0.0.jar" id="org.eclipse.mylyn.tasks.ide" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+-   <feature url="features/org.eclipse.mylyn.test_feature_0.0.0.jar" id="org.eclipse.mylyn.test_feature" version="0.0.0">
++   <!--feature url="features/org.eclipse.mylyn.test_feature_0.0.0.jar" id="org.eclipse.mylyn.test_feature" version="0.0.0">
+       <category name="SDK"/>
+-   </feature>
++   </feature-->
+    <feature url="features/org.eclipse.mylyn.versions_0.0.0.jar" id="org.eclipse.mylyn.versions" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+--- org.eclipse.mylyn.commons/org.eclipse.mylyn.commons-site/site.xml.sav	2014-05-09 23:03:55.000000000 +0300
++++ org.eclipse.mylyn.commons/org.eclipse.mylyn.commons-site/site.xml	2014-05-10 01:35:50.981785288 +0300
+@@ -16,7 +16,7 @@
+    <feature url="features/org.eclipse.mylyn.commons_0.0.0.jar" id="org.eclipse.mylyn.commons" version="0.0.0">
+       <category name="Features"/>
+    </feature>
+-   <feature url="features/org.eclipse.mylyn.commons.activity_0.0.0.jar" id="org.eclipse.mylyn.commons.identity" version="0.0.0">
++   <feature url="features/org.eclipse.mylyn.commons.activity_0.0.0.jar" id="org.eclipse.mylyn.commons.activity" version="0.0.0">
+       <category name="Integration"/>
+    </feature>
+    <feature url="features/org.eclipse.mylyn.commons.identity_0.0.0.jar" id="org.eclipse.mylyn.commons.identity" version="0.0.0">
+@@ -43,9 +40,6 @@
+    <feature url="features/org.eclipse.mylyn.commons.sdk_0.0.0.jar" id="org.eclipse.mylyn.commons.sdk" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
+-   <feature url="features/org.eclipse.mylyn.commons.tck_0.0.0.jar" id="org.eclipse.mylyn.commons.tck" version="0.0.0">
+-      <category name="SDK"/>
+-   </feature>
+    <category-def name="Features" label="Mylyn Commons Features">
+       <description>
+          Tools.

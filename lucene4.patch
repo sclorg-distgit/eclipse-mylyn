@@ -1,0 +1,168 @@
+diff --git a/org.eclipse.mylyn.tasks.index.core/META-INF/MANIFEST.MF b/org.eclipse.mylyn.tasks.index.core/META-INF/MANIFEST.MF
+index 44080b1..962ff79 100644
+--- org.eclipse.mylyn.tasks.index.core/META-INF/MANIFEST.MF
++++ org.eclipse.mylyn.tasks.index.core/META-INF/MANIFEST.MF
+@@ -7,7 +7,9 @@ Bundle-Vendor: %Bundle-Vendor
+ Require-Bundle: org.eclipse.core.runtime,
+  org.eclipse.mylyn.tasks.core;bundle-version="3.8.0",
+  org.eclipse.mylyn.commons.core;bundle-version="3.8.0",
+- org.apache.lucene.core;bundle-version="[2.9.1,3.7.0)"
++ org.apache.lucene.core;bundle-version="[4.0.0,5.0.0)",
++ org.apache.lucene.queryparser;bundle-version="[4.0.0,5.0.0)",
++ org.apache.lucene.analysis;bundle-version="[4.0.0,5.0.0)"
+ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ Bundle-ActivationPolicy: lazy
+ Export-Package: org.eclipse.mylyn.internal.tasks.index.core;x-internal:=true
+diff --git a/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskAnalyzer.java b/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskAnalyzer.java
+index b1b88c1..1cbf72c 100644
+--- org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskAnalyzer.java
++++ org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskAnalyzer.java
+@@ -11,8 +11,12 @@
+  *******************************************************************************/
+ package org.eclipse.mylyn.internal.tasks.index.core;
+ 
+-import org.apache.lucene.analysis.KeywordAnalyzer;
+-import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
++import java.util.HashMap;
++import java.util.Map;
++
++import org.apache.lucene.analysis.Analyzer;
++import org.apache.lucene.analysis.core.KeywordAnalyzer;
++import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+ import org.apache.lucene.analysis.standard.StandardAnalyzer;
+ import org.apache.lucene.util.Version;
+ 
+@@ -24,10 +28,12 @@ import org.apache.lucene.util.Version;
+ class TaskAnalyzer {
+ 
+ 	public static PerFieldAnalyzerWrapper instance() {
+-		PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Version.LUCENE_CURRENT));
+-		wrapper.addAnalyzer(TaskListIndex.FIELD_IDENTIFIER.getIndexKey(), new KeywordAnalyzer());
+-		wrapper.addAnalyzer(TaskListIndex.FIELD_TASK_KEY.getIndexKey(), new KeywordAnalyzer());
+-		wrapper.addAnalyzer(TaskListIndex.FIELD_REPOSITORY_URL.getIndexKey(), new KeywordAnalyzer());
++		Map<String, Analyzer> analyzerPerField = new HashMap<String, Analyzer>();
++		analyzerPerField.put(TaskListIndex.FIELD_IDENTIFIER.getIndexKey(), new KeywordAnalyzer());
++		analyzerPerField.put(TaskListIndex.FIELD_TASK_KEY.getIndexKey(), new KeywordAnalyzer());
++		analyzerPerField.put(TaskListIndex.FIELD_REPOSITORY_URL.getIndexKey(), new KeywordAnalyzer());
++		PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Version.LUCENE_CURRENT),
++				analyzerPerField);
+ 		return wrapper;
+ 	}
+ }
+--- org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskListIndex.java.sav	2014-03-28 12:12:59.000000000 +0200
++++ org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskListIndex.java	2014-03-31 14:52:27.320005081 +0300
+@@ -38,12 +38,16 @@ import org.apache.lucene.document.DateTo
+ import org.apache.lucene.document.Document;
+ import org.apache.lucene.document.Field;
+ import org.apache.lucene.document.Field.Store;
++import org.apache.lucene.document.StringField;
+ import org.apache.lucene.index.CorruptIndexException;
++import org.apache.lucene.index.DirectoryReader;
+ import org.apache.lucene.index.IndexReader;
+ import org.apache.lucene.index.IndexWriter;
++import org.apache.lucene.index.IndexWriterConfig;
++import org.apache.lucene.index.IndexableField;
+ import org.apache.lucene.index.Term;
+-import org.apache.lucene.queryParser.ParseException;
+-import org.apache.lucene.queryParser.QueryParser;
++import org.apache.lucene.queryparser.classic.ParseException;
++import org.apache.lucene.queryparser.classic.QueryParser;
+ import org.apache.lucene.search.BooleanClause;
+ import org.apache.lucene.search.BooleanClause.Occur;
+ import org.apache.lucene.search.BooleanQuery;
+@@ -591,12 +595,6 @@ public class TaskListIndex implements IT
+ 					} catch (IOException e) {
+ 						StatusHandler.log(new Status(IStatus.ERROR, TasksIndexCore.ID_PLUGIN,
+ 								"Unexpected failure within task list index", e)); //$NON-NLS-1$
+-					} finally {
+-						try {
+-							indexSearcher.close();
+-						} catch (IOException e) {
+-							// ignore
+-						}
+ 					}
+ 
+ 				} else {
+@@ -674,12 +672,6 @@ public class TaskListIndex implements IT
+ 				} catch (IOException e) {
+ 					StatusHandler.log(new Status(IStatus.ERROR, TasksIndexCore.ID_PLUGIN,
+ 							"Unexpected failure within task list index", e)); //$NON-NLS-1$
+-				} finally {
+-					try {
+-						indexSearcher.close();
+-					} catch (IOException e) {
+-						// ignore
+-					}
+ 				}
+ 			}
+ 		} finally {
+@@ -769,7 +761,7 @@ public class TaskListIndex implements IT
+ 		try {
+ 			synchronized (this) {
+ 				if (indexReader == null) {
+-					indexReader = IndexReader.open(directory, true);
++					indexReader = DirectoryReader.open(directory);
+ 					lastResults = null;
+ 				}
+ 				return indexReader;
+@@ -983,7 +975,7 @@ public class TaskListIndex implements IT
+ 		if (value == null) {
+ 			return;
+ 		}
+-		Field field = document.getField(indexField.getIndexKey());
++		IndexableField field = document.getField(indexField.getIndexKey());
+ 		if (field == null) {
+ 			field = new Field(indexField.getIndexKey(), value, Store.YES,
+ 					org.apache.lucene.document.Field.Index.ANALYZED);
+@@ -991,7 +983,7 @@ public class TaskListIndex implements IT
+ 		} else {
+ 			String existingValue = field.stringValue();
+ 			if (!indexField.equals(FIELD_PERSON) || !existingValue.contains(value)) {
+-				field.setValue(existingValue + " " + value); //$NON-NLS-1$
++				document.add(new StringField(field.name(), existingValue + " " + value, Store.YES)); //$NON-NLS-1$
+ 			}
+ 		}
+ 	}
+@@ -1004,13 +996,13 @@ public class TaskListIndex implements IT
+ 		// move the date by the GMT offset if there is any
+ 
+ 		String value = DateTools.dateToString(date, Resolution.HOUR);
+-		Field field = document.getField(indexField.getIndexKey());
++		IndexableField field = document.getField(indexField.getIndexKey());
+ 		if (field == null) {
+ 			field = new Field(indexField.getIndexKey(), value, Store.YES,
+ 					org.apache.lucene.document.Field.Index.ANALYZED);
+ 			document.add(field);
+ 		} else {
+-			field.setValue(value);
++			document.add(new StringField(field.name(), value, Store.YES));
+ 		}
+ 	}
+ 
+@@ -1069,7 +1061,7 @@ public class TaskListIndex implements IT
+ 			try {
+ 				if (!rebuildIndex) {
+ 					try {
+-						IndexReader reader = IndexReader.open(directory, false);
++						IndexReader reader = DirectoryReader.open(directory);
+ 						reader.close();
+ 					} catch (CorruptIndexException e) {
+ 						rebuildIndex = true;
+@@ -1216,7 +1208,7 @@ public class TaskListIndex implements IT
+ 				writer = createIndexWriter(true);
+ 			} catch (CorruptIndexException e) {
+ 				if (directory instanceof FSDirectory) {
+-					cleanDirectory(((FSDirectory) directory).getFile());
++					cleanDirectory(((FSDirectory) directory).getDirectory());
+ 					writer = createIndexWriter(true);
+ 				} else {
+ 					throw e;
+@@ -1264,7 +1256,7 @@ public class TaskListIndex implements IT
+ 
+ 	protected IndexWriter createIndexWriter(boolean create) throws CorruptIndexException, LockObtainFailedException,
+ 			IOException {
+-		return new IndexWriter(directory, TaskAnalyzer.instance(), create, IndexWriter.MaxFieldLength.UNLIMITED);
++		return new IndexWriter(directory, new IndexWriterConfig(Version.LUCENE_CURRENT,	TaskAnalyzer.instance()));
+ 	}
+ 
+ 	/**

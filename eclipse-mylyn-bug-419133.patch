@@ -1,0 +1,16 @@
+### Eclipse Workspace Patch 1.0
+#P org.eclipse.mylyn.bugzilla.core
+diff --git org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/src/org/eclipse/mylyn/internal/bugzilla/core/BugzillaTaskDataHandler.java org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/src/org/eclipse/mylyn/internal/bugzilla/core/BugzillaTaskDataHandler.java
+index b50cca6..dac242e 100644
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/src/org/eclipse/mylyn/internal/bugzilla/core/BugzillaTaskDataHandler.java
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/src/org/eclipse/mylyn/internal/bugzilla/core/BugzillaTaskDataHandler.java
+@@ -402,6 +402,9 @@
+ 				version.migrate(taskRepository, taskData, connector);
+ 			}
+ 		}
++
++		// hack for RH bugzilla listing cf_clone_of as editable, but not granting write privileges to anyone
++		taskData.getRoot().removeAttribute("cf_clone_of"); //$NON-NLS-1$
+ 	}
+ 
+ 	@Override
