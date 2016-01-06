@@ -1,0 +1,57 @@
+--- org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.sdk-feature/feature.xml.sav	2014-10-02 14:56:02.949731472 +0100
++++ org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.sdk-feature/feature.xml	2014-10-02 14:57:18.248690683 +0100
+@@ -49,13 +49,6 @@
+          unpack="false"/>
+ 
+    <plugin
+-         id="org.eclipse.mylyn.wikitext.tests"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+-         unpack="false"/>
+-
+-   <plugin
+          id="org.eclipse.mylyn.wikitext.confluence.core.source"
+          download-size="0"
+          install-size="0"
+@@ -103,12 +96,6 @@
+          install-size="0"
+          version="0.0.0"
+          unpack="false"/>
+-   <plugin
+-         id="org.eclipse.mylyn.wikitext.html.tests.source"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+-         unpack="false"/>
+          
+    <plugin
+          id="org.eclipse.mylyn.wikitext.markdown.core.source"
+@@ -143,27 +130,6 @@
+          download-size="0"
+          install-size="0"
+          version="0.0.0"
+-         unpack="false"/>
+-
+-   <plugin
+-         id="org.eclipse.mylyn.wikitext.core.tests.source"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+-         unpack="false"/>
+-         
+-   <plugin
+-         id="org.eclipse.mylyn.wikitext.core.osgi.tests.source"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+-         unpack="false"/>
+-         
+-   <plugin
+-         id="org.eclipse.mylyn.wikitext.tests.source"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+          unpack="false"/>
+ 
+    <plugin
