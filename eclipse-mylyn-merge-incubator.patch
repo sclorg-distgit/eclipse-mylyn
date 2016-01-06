@@ -1,0 +1,52 @@
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.web.tasks-feature/feature.xml.bak	2012-07-09 15:06:05.000000000 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.web.tasks-feature/feature.xml	2012-07-09 15:48:55.733303630 +0200
+@@ -13,8 +13,7 @@
+       id="org.eclipse.mylyn.web.tasks_feature"
+       label="%featureName"
+       version="3.16.0.qualifier"
+-      provider-name="%providerName"
+-      plugin="org.eclipse.mylyn.sandbox.ui">
++      provider-name="%providerName">
+ 
+    <description url="http://eclipse.org/mylyn">
+       %description
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.wiki-feature/feature.xml.bak	2012-07-09 15:49:49.000000000 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.wiki-feature/feature.xml	2012-07-09 15:50:03.736772241 +0200
+@@ -13,8 +13,7 @@
+       id="org.eclipse.mylyn.trac.wiki_feature"
+       label="%featureName"
+       version="3.16.0.qualifier"
+-      provider-name="%providerName"
+-      plugin="org.eclipse.mylyn.sandbox.ui">
++      provider-name="%providerName">
+ 
+    <description url="http://eclipse.org/mylyn">
+       %description
+--- org.eclipse.mylyn/org.eclipse.mylyn-site/site.xml.bak	2012-07-09 19:42:50.000000000 +0200
++++ org.eclipse.mylyn/org.eclipse.mylyn-site/site.xml	2012-07-09 19:54:02.657739369 +0200
+@@ -127,6 +127,12 @@
+    <feature url="features/org.eclipse.mylyn.wikitext.sdk_0.0.0.jar" id="org.eclipse.mylyn.wikitext.sdk" version="0.0.0">
+       <category name="SDK"/>
+    </feature>
++   <feature url="features/org.eclipse.mylyn.trac.wiki_feature_0.0.0.jar" id="org.eclipse.mylyn.trac.wiki_feature" version="0.0.0">
++      <category name="SDK"/>
++   </feature>
++   <feature url="features/org.eclipse.mylyn.web.tasks_feature_0.0.0.jar" id="org.eclipse.mylyn.web.tasks_feature" version="0.0.0">
++      <category name="SDK"/>
++   </feature>
+    
+    <category-def name="Features" label="Mylyn Features">
+       <description>
+--- org.eclipse.mylyn.tasks/pom.xml.sav	2014-03-28 13:51:55.785265013 +0200
++++ org.eclipse.mylyn.tasks/pom.xml	2014-03-28 13:53:43.239554573 +0200
+@@ -124,6 +124,10 @@
+     <module>org.eclipse.mylyn.trac.tests</module>
+     <module>org.eclipse.mylyn.trac.ui</module>
+     <module>org.eclipse.mylyn.trac.ui.tests</module>
++    <module>org.eclipse.mylyn.trac.wiki</module>
++    <module>org.eclipse.mylyn.trac.wiki-feature</module>
++    <module>org.eclipse.mylyn.web.tasks</module>
++    <module>org.eclipse.mylyn.web.tasks-feature</module>
+     <module>connector-bugzilla-rest</module>
+   </modules>
+ </project>

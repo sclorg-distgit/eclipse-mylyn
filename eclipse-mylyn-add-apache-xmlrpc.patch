@@ -1,0 +1,58 @@
+--- org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.xmlrpc/META-INF/MANIFEST.MF.bak	2012-07-03 14:14:58.949909557 +0200
++++ org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.xmlrpc/META-INF/MANIFEST.MF	2012-07-03 14:10:59.000000000 +0200
+@@ -7,7 +7,8 @@
+ Require-Bundle: org.eclipse.core.runtime,
+  org.eclipse.mylyn.commons.core;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.mylyn.commons.net;bundle-version="[3.8.0,4.0.0)",
+- org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)"
++ org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)",
++ org.apache.xmlrpc.common
+ Bundle-ActivationPolicy: lazy
+ Export-Package: org.eclipse.mylyn.internal.commons.xmlrpc;x-internal:=true
+ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/META-INF/MANIFEST.MF.bak	2012-07-03 14:20:13.726607170 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/META-INF/MANIFEST.MF	2012-07-03 14:20:25.813672358 +0200
+@@ -10,7 +10,8 @@
+  org.eclipse.mylyn.commons.core;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.core.net,
+  org.eclipse.mylyn.commons.xmlrpc;bundle-version="[3.8.0,4.0.0)",
+- org.apache.xmlrpc
++ org.apache.xmlrpc, 
++ org.apache.xmlrpc.common
+ Bundle-ActivationPolicy: lazy
+ Bundle-Vendor: %Bundle-Vendor
+ Bundle-ClassPath: .
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.core/META-INF/MANIFEST.MF.bak	2012-07-02 09:23:09.000000000 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.core/META-INF/MANIFEST.MF	2012-07-03 14:27:53.515951111 +0200
+@@ -9,7 +9,8 @@
+  org.eclipse.mylyn.commons.core;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.mylyn.commons.net;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.mylyn.commons.xmlrpc;bundle-version="[3.8.0,4.0.0)",
+- org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)"
++ org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)",
++ org.apache.xmlrpc.common
+ Bundle-ActivationPolicy: lazy
+ Export-Package: org.eclipse.mylyn.internal.trac.core;x-friends:="org.eclipse.mylyn.trac.ui",
+  org.eclipse.mylyn.internal.trac.core.client;x-friends:="org.eclipse.mylyn.trac.ui",
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.tests/META-INF/MANIFEST.MF.orig	2015-01-29 15:28:39.166877841 +0000
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.tests/META-INF/MANIFEST.MF	2015-01-29 15:29:04.377515629 +0000
+@@ -19,6 +19,7 @@
+  org.eclipse.mylyn.trac.ui,
+  org.apache.ws.commons.util;bundle-version="1.0.0",
+  org.apache.xmlrpc;bundle-version="3.0.0",
++ org.apache.xmlrpc.common,
+  org.eclipse.ui.forms,
+  org.apache.commons.lang;bundle-version="2.4.0"
+ Export-Package: org.eclipse.mylyn.trac.tests;x-internal:=true,
+--- org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.tests/META-INF/MANIFEST.MF.orig	2015-01-29 15:31:57.434029251 +0000
++++ org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.tests/META-INF/MANIFEST.MF	2015-01-29 15:32:22.340671406 +0000
+@@ -16,7 +16,8 @@
+  org.eclipse.mylyn.commons.workbench,
+  org.eclipse.mylyn.commons.xmlrpc,
+  org.eclipse.mylyn.commons.sdk.util;bundle-version="3.8.0",
+- org.apache.xmlrpc
++ org.apache.xmlrpc,
++ org.apache.xmlrpc.common,org.apache.xmlrpc.server
+ Export-Package: org.eclipse.mylyn.commons.core;x-internal:=true,
+  org.eclipse.mylyn.commons.tests;x-internal:=true,
+  org.eclipse.mylyn.commons.tests.core;x-internal:=true,
