@@ -1,0 +1,36 @@
+--- org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.xmlrpc/META-INF/MANIFEST.MF.bak	2012-07-03 14:14:58.949909557 +0200
++++ org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.xmlrpc/META-INF/MANIFEST.MF	2012-07-03 14:10:59.000000000 +0200
+@@ -7,7 +7,8 @@
+ Require-Bundle: org.eclipse.core.runtime,
+  org.eclipse.mylyn.commons.core;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.mylyn.commons.net;bundle-version="[3.8.0,4.0.0)",
+- org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)"
++ org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)",
++ org.apache.xmlrpc.common
+ Bundle-ActivationPolicy: lazy
+ Export-Package: org.eclipse.mylyn.internal.commons.xmlrpc;x-internal:=true
+ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/META-INF/MANIFEST.MF.bak	2012-07-03 14:20:13.726607170 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.core/META-INF/MANIFEST.MF	2012-07-03 14:20:25.813672358 +0200
+@@ -10,7 +10,8 @@
+  org.eclipse.mylyn.commons.core;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.core.net,
+  org.eclipse.mylyn.commons.xmlrpc;bundle-version="[3.8.0,4.0.0)",
+- org.apache.xmlrpc
++ org.apache.xmlrpc, 
++ org.apache.xmlrpc.common
+ Bundle-ActivationPolicy: lazy
+ Bundle-Vendor: %Bundle-Vendor
+ Bundle-ClassPath: .
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.core/META-INF/MANIFEST.MF.bak	2012-07-02 09:23:09.000000000 +0200
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.core/META-INF/MANIFEST.MF	2012-07-03 14:27:53.515951111 +0200
+@@ -9,7 +9,8 @@
+  org.eclipse.mylyn.commons.core;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.mylyn.commons.net;bundle-version="[3.8.0,4.0.0)",
+  org.eclipse.mylyn.commons.xmlrpc;bundle-version="[3.8.0,4.0.0)",
+- org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)"
++ org.apache.xmlrpc;bundle-version="[3.0.0,4.0.0)",
++ org.apache.xmlrpc.common
+ Bundle-ActivationPolicy: lazy
+ Export-Package: org.eclipse.mylyn.internal.trac.core;x-friends:="org.eclipse.mylyn.trac.ui",
+  org.eclipse.mylyn.internal.trac.core.client;x-friends:="org.eclipse.mylyn.trac.ui",
