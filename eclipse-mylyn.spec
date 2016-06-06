@@ -2,16 +2,21 @@
 %{!?scl:%global pkg_name %{name}}
 %{?java_common_find_provides_and_requires}
 
-%global tag R_3_16_0
-%global incubator_tag 07a5ce39847b8dc5921180942db31d30f9d2d4f8
+%global baserelease 4
 
-# Set this to 0 if CDT is not available
-%global have_cdt 1
+%global tag R_3_18_0
+%global incubator_tag 4ed20a19954cfd37d6575da179cfe7b1fae0a465
+
+%if 0%{?fedora} >= 24
+%global droplets droplets
+%else
+%global droplets dropins
+%endif
 
 Name:    %{?scl_prefix}eclipse-mylyn
 Summary: Eclipse Mylyn main feature.
-Version: 3.16.0
-Release: 1.6.bs2%{?dist}
+Version: 3.18.0
+Release: 5.%{baserelease}%{?dist}
 License: EPL
 URL: http://www.eclipse.org/mylyn
 
@@ -27,24 +32,28 @@ Patch1: %{pkg_name}-add-apache-xmlrpc.patch
 Patch2: %{pkg_name}-disable-online-tests.patch
 Patch3: %{pkg_name}-merge-incubator.patch
 Patch4: %{pkg_name}-bug-419133.patch
+%if 0%{?fedora} == 22
 Patch5: lucene4.patch
+%else
+Patch5: 0001-Compile-with-Lucene-5.patch
+%endif
 Patch6: %{pkg_name}-remove-nullable-annotation.patch
 Patch7: explicit-hamcrest-use.patch
+Patch8: %{pkg_name}-bree-bump.patch
+Patch9: eclipse-fix-bugzilla-and-versions-tests.patch
 
 BuildArch: noarch
 
 BuildRequires: %{?scl_prefix}eclipse-pde >= 1:4.2.0
-%if %{have_cdt}
 BuildRequires: %{?scl_prefix}eclipse-cdt
-%endif
 BuildRequires: %{?scl_prefix}eclipse-egit
 BuildRequires: %{?scl_prefix}eclipse-jgit
 BuildRequires: %{?scl_prefix}eclipse-license
 BuildRequires: %{?scl_prefix}eclipse-emf
-BuildRequires: %{?scl_prefix}tycho >= 0.14.1-5
+BuildRequires: %{?scl_prefix}tycho
 BuildRequires: %{?scl_prefix}eclipse-egit
-BuildRequires: %{?scl_prefix_java_common}lucene
-BuildRequires: %{?scl_prefix_java_common}lucene-queryparser
+BuildRequires: %{?scl_prefix_java_common}lucene5
+BuildRequires: %{?scl_prefix_java_common}lucene5-queryparser
 BuildRequires: %{?scl_prefix_java_common}maven-local
 BuildRequires: %{?scl_prefix_java_common}apache-commons-lang >= 2.6-6
 BuildRequires: %{?scl_prefix_java_common}apache-commons-logging
@@ -62,7 +71,7 @@ BuildRequires: %{?scl_prefix_java_common}xalan-j2
 BuildRequires: %{?scl_prefix_java_common}junit
 BuildRequires: %{?scl_prefix_java_common}hamcrest
 BuildRequires: %{?scl_prefix_java_common}objenesis
-BuildRequires: %{?scl_prefix}mockito
+BuildRequires: %{?scl_prefix}mockito >= 1.10.19-3.7
 BuildRequires: %{?scl_prefix_maven}maven-deploy-plugin
 BuildRequires: %{?scl_prefix_maven}maven-plugin-build-helper
 BuildRequires: %{?scl_prefix_maven}xml-maven-plugin
@@ -98,7 +107,6 @@ Requires: %{?scl_prefix}eclipse-pde
 %description context-pde
 Mylyn Task-Focused UI extensions for PDE, Ant, Team Support and CVS.
 
-%if %{have_cdt}
 %package context-cdt
 Summary:  Mylyn Bridge:  C/C++ Development
 Requires: %{?scl_prefix}eclipse-cdt
@@ -106,7 +114,6 @@ Requires: %{?scl_prefix}eclipse-cdt
 %description context-cdt
 Mylyn Task-Focused UI extensions for CDT.  Provides focusing of C/C++
 element views and editors.
-%endif
 
 %package tasks-bugzilla
 Summary: Mylyn Tasks Connector: Bugzilla
@@ -197,12 +204,16 @@ Sources for all Mylyn bundles.
 
 %package tests
 Summary: Mylyn test bundles
+Requires: %{?scl_prefix}eclipse-tests
+Requires: %{?scl_prefix}eclipse-swtbot
+Requires: %{?scl_prefix}mockito >= 1.10.19-3.7
 
 %description tests
 All the test bundles for mylyn packages.
 
 %prep
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
+set -e -x
 %setup -q -n eclipse-mylyn-%{tag}-fetched-src
 tar xaf %{SOURCE7} -C org.eclipse.mylyn.tasks --strip-components=1
 
@@ -216,9 +227,15 @@ pushd org.eclipse.mylyn.tasks
 popd
 %patch6
 %patch7
+pushd org.eclipse.mylyn.tasks
+%patch8 -p1
+popd
+%patch9
 
-# Work around rhbz#1173588 and EBZ #472409
-sed -i "/innerComposite\.setMinSize/ a \\\t\tinnerComposite\.getShell()\.layout();" org.eclipse.mylyn.tasks/org.eclipse.mylyn.tasks.ui/src/org/eclipse/mylyn/tasks/ui/wizards/AbstractRepositorySettingsPage.java
+#remove tests that fail to compile
+rm -rf org.eclipse.mylyn.commons/org.eclipse.mylyn.commons.ui.tests/src/org/eclipse/mylyn/commons/ui/ShellDragSupportTest.java
+rm -rf org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/src/org/eclipse/mylyn/internal/hudson/ui/HudsonDiscovery.java
+rm -rf org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/src/org/eclipse/mylyn/internal/hudson/ui/HudsonUiPlugin.java
 
 # Disable plugins we can live without (they are skipped by default anyway)
 for p in findbugs-maven-plugin maven-pmd-plugin jacoco-maven-plugin ; do
@@ -231,18 +248,6 @@ for site in $(grep -l -r --include="pom.xml" eclipse-update-site .) ; do
   module=$(basename $(dirname $site)); dir=$(dirname $(dirname $site))
   %pom_disable_module $module $dir
 done
-
-%if ! %{have_cdt}
-# Disable CDT for now
-sed -i -e '/org.eclipse.mylyn.cdt/d' org.eclipse.mylyn/org.eclipse.mylyn.tests/META-INF/MANIFEST.MF
-sed -i -e '/Cdt/d' org.eclipse.mylyn/org.eclipse.mylyn.tests/src/org/eclipse/mylyn/tests/AllNonConnectorTests.java
-%pom_disable_module org.eclipse.mylyn.cdt-feature org.eclipse.mylyn.context
-%pom_disable_module org.eclipse.mylyn.cdt.tests org.eclipse.mylyn.context
-%pom_disable_module org.eclipse.mylyn.cdt.ui org.eclipse.mylyn.context
-%pom_xpath_remove "plugin[@id='org.eclipse.mylyn.cdt.tests']" org.eclipse.mylyn.context/org.eclipse.mylyn.context.development-feature/feature.xml
-%pom_xpath_remove "plugin[@id='org.eclipse.cdt.mylyn.ui.source']" org.eclipse.mylyn.context/org.eclipse.mylyn.context.sdk-feature/feature.xml
-%pom_xpath_remove "includes[@id='org.eclipse.cdt.mylyn']" org.eclipse.mylyn.context/org.eclipse.mylyn.context.sdk-feature/feature.xml
-%endif
 
 # Disable modules we can't build yet
 %pom_disable_module org.eclipse.mylyn.subclipse-feature org.eclipse.mylyn.versions
@@ -309,6 +314,7 @@ sed -i -e "s|@NonNull||g" org.eclipse.mylyn.tasks/connector-bugzilla-rest/org.ec
 %mvn_package ":org.eclipse.mylyn.tests.util" sdk
 %mvn_package ":org.eclipse.mylyn.{context,commons}.sdk.util" sdk
 %mvn_package ":org.eclipse.mylyn.context.sdk.java" sdk
+%mvn_package ":org.eclipse.mylyn.*development" sdk
 %mvn_package ":*.test{s,_feature}" tests
 %mvn_package "org.eclipse.mylyn.builds:*hudson*" builds-hudson
 %mvn_package "org.eclipse.mylyn.builds:" builds
@@ -337,20 +343,23 @@ done
 
 %build
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
+set -e -x
 %mvn_build -f -j -- -Ddist.qualifier="\'v\'yyyyMMdd-HHmm"
 %{?scl:EOF}
 
 
 %install
 %{?scl:scl enable %{scl_maven} %{scl} - << "EOF"}
+set -e -x
 %mvn_install
 
 install %{SOURCE6} \
-  %{buildroot}%{_datadir}/eclipse/dropins/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
-  rm %{buildroot}%{_datadir}/eclipse/dropins/mylyn-sdk/eclipse/plugins/org.mockito.mockito-core_*
-  rm %{buildroot}%{_datadir}/eclipse/dropins/mylyn-docs-epub/eclipse/plugins/net.sf.cglib.core_*
-  sed -i '/org.mockito.mockito-core_/ d' .mfiles-sdk
-  sed -i '/net.sf.cglib.core_/ d' .mfiles-docs-epub
+  %{buildroot}%{_datadir}/eclipse/%{droplets}/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
+rm %{buildroot}%{_datadir}/eclipse/%{droplets}/mylyn-sdk/eclipse/plugins/org.mockito.mockito-core_*
+rm %{buildroot}%{_datadir}/eclipse/%{droplets}/mylyn-sdk/eclipse/plugins/net.sf.cglib.core_*
+rm -f %{buildroot}%{_datadir}/eclipse/%{droplets}/mylyn-docs-epub/eclipse/plugins/net.sf.cglib.core_*
+sed -i '/org.mockito.mockito-core_/ d' .mfiles-sdk
+sed -i '/net.sf.cglib.core_/ d' .mfiles-sdk .mfiles-docs-epub
 %{?scl:EOF}
 
 
@@ -360,12 +369,10 @@ install %{SOURCE6} \
 
 %files context-pde -f .mfiles-context-pde
 
-%if %{have_cdt}
 %files context-cdt -f .mfiles-context-cdt
-%endif
 
 %files tasks-bugzilla -f .mfiles-tasks-bugzilla
-%{_datadir}/eclipse/dropins/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
+%{_datadir}/eclipse/%{droplets}/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
 
 %files tasks-trac -f .mfiles-tasks-trac
 
@@ -390,26 +397,57 @@ install %{SOURCE6} \
 %files tests -f .mfiles-tests
 
 %changelog
-* Mon Oct 19 2015 Roland Grunberg <rgrunber@redhat.com> - 3.16.0-1.6
-- Fix layout of Task Repository Properties view.
-- Resolves: rhbz#1173588
+* Wed Apr 06 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-5.4
+- Fix broken cglib symlink in doc-epub, fixes rhbz#1311007
 
-* Tue Sep 01 2015 Mat Booth <mat.booth@redhat.com> - 3.16.0-1.5
-- Include maven descriptors to allow tests to be discovered.
-- Resolves: rhbz#1228095
+* Mon Apr 04 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-5.3
+- Patch to fix bugzilla connector tests, rhbz#1263098
+- Patch to fix versions tests, rhbz#1315731
 
-* Fri Aug 28 2015 Roland Grunberg <rgrunber@redhat.com> - 3.16.0-1.4
-- Manually remove mockito from sdk, and cglib from doc-epub.
-- Resolves: rhbz#1250553, rhbz#1250554
+* Tue Feb 16 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-5.2
+- Rebuilt to regenerate symlinks to mockito/cglib
+- rhbz#1263096, rhbz#1263092
 
-* Tue Jul 28 2015 Roland Grunberg <rgrunber@redhat.com> - 3.16.0-1.3
-- Rebuild for correcting symbolic links to objectweb-asm.
-
-* Mon Jul 13 2015 Mat Booth <mat.booth@redhat.com> - 3.16.0-1.2
-- Rebuild with CDT support
-
-* Tue Jul 07 2015 Mat Booth <mat.booth@redhat.com> - 3.16.0-1.1
+* Fri Feb 12 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-5.1
 - Import latest from Fedora
+
+* Fri Feb 12 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-5
+- Only use lucene 4 on F22
+
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.18.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
+* Mon Jan 18 2016 Roland Grunberg <rgrunber@redhat.com> - 3.18.0-3
+- Move org.eclipse.mylyn.*development features into mylyn-sdk.
+
+* Thu Jan 14 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-2.1
+- Import latest from Fedora
+- Drop the subclipse package
+- Manually remove mockito from sdk, and cglib from doc-epub
+
+* Wed Jan 13 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-2
+- Add missing BR/Rs needed for tests to run
+- Include maven descriptors to allow tests to be discovered
+- Fixes rhbz#1271125 - no results from mylyn-tests
+
+* Tue Jan 12 2016 Mat Booth <mat.booth@redhat.com> - 3.18.0-1
+- Update to latest release
+
+* Mon Jan 11 2016 Roland Grunberg <rgrunber@redhat.com> - 3.17.0-3
+- Bump release for rebuild.
+
+* Mon Oct 19 2015 Roland Grunberg <rgrunber@redhat.com> - 3.17.0-2
+- Fix Mylyn Task List decorator icons. EBZ #461443
+- Fix layout of Task Repository Properties view. EBZ #472409
+
+* Tue Sep 29 2015 Sopot Cela <scela@redhat.com> -3.17.0-1
+- Updated to 3.17.0 for Mars.1 release
+
+* Mon Aug 31 2015 Roland Grunberg <rgrunber@redhat.com> - 3.16.0-3
+- Minor changes to build as a droplet.
+
+* Tue Jul 28 2015 Roland Grunberg <rgrunber@redhat.com> - 3.16.0-2
+- Rebuild for correcting symbolic links to objectweb-asm.
 
 * Thu Jun 25 2015 Alexander Kurtakov <akurtako@redhat.com> 3.16.0-1
 - Update to 3.16.0 final release.

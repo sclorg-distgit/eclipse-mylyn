@@ -1,0 +1,32 @@
+--- org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.tests/pom.xml.orig	2016-04-04 13:48:20.495479559 +0100
++++ org.eclipse.mylyn.tasks/org.eclipse.mylyn.bugzilla.tests/pom.xml	2016-04-04 13:48:46.415177738 +0100
+@@ -31,8 +31,8 @@
+         <version>${tycho-version}</version>
+         <configuration>
+           <skip>${test.component.skip}</skip> 
+-          <testSuite>${project.artifactId}</testSuite>
+-          <testClass>${test.suite}</testClass>
++          <testSuite>org.eclipse.mylyn.bugzilla.tests</testSuite>
++          <testClass>org.eclipse.mylyn.bugzilla.tests.AllBugzillaTests</testClass>
+         </configuration>
+       </plugin>
+       <plugin>
+--- org.eclipse.mylyn.tasks/connector-bugzilla-rest/org.eclipse.mylyn.bugzilla.rest.core.tests/build.properties.orig	2016-04-04 12:08:14.553542612 +0100
++++ org.eclipse.mylyn.tasks/connector-bugzilla-rest/org.eclipse.mylyn.bugzilla.rest.core.tests/build.properties	2016-04-04 12:09:21.716742647 +0100
+@@ -2,5 +2,6 @@
+ output.. = bin/
+ bin.includes = META-INF/,\
+                .,\
++               testdata/,\
+                about.html
+ src.includes = about.html
+--- org.eclipse.mylyn.versions/org.eclipse.mylyn.versions.tests/build.properties.orig	2016-04-04 14:09:06.495102753 +0100
++++ org.eclipse.mylyn.versions/org.eclipse.mylyn.versions.tests/build.properties	2016-04-04 14:09:20.154945632 +0100
+@@ -7,6 +7,7 @@
+ ###############################################################################
+ bin.includes = META-INF/,\
+                .,\
++               testdata/,\
+                about.html,\
+                plugin.xml
+ source.. = src/
