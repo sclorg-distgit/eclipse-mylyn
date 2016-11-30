@@ -1,0 +1,37 @@
+diff --git org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/META-INF/MANIFEST.MF org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/META-INF/MANIFEST.MF
+index dc4a512..ab101b8 100644
+--- org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/META-INF/MANIFEST.MF
++++ org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/META-INF/MANIFEST.MF
+@@ -20,5 +20,4 @@ Require-Bundle: org.eclipse.core.runtime,
+ Bundle-ActivationPolicy: lazy
+ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ Bundle-Localization: plugin
+-Export-Package: org.eclipse.mylyn.internal.hudson.ui;x-internal:=true
+-Bundle-Activator: org.eclipse.mylyn.internal.hudson.ui.HudsonUiPlugin
++
+diff --git org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/build.properties org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/build.properties
+index 5ea1ded..aa184c6 100644
+--- org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/build.properties
++++ org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/build.properties
+@@ -18,4 +18,4 @@ bin.includes = META-INF/,\
+                icons/
+ src.includes = about.html
+ 
+-jars.extra.classpath = platform:/plugin/org.eclipse.ecf,platform:/plugin/org.eclipse.ecf.discovery,platform:/plugin/org.eclipse.ecf.provider.discovery,platform:/plugin/org.eclipse.ecf.provider.jmdns
++#jars.extra.classpath = platform:/plugin/org.eclipse.ecf,platform:/plugin/org.eclipse.ecf.discovery,platform:/plugin/org.eclipse.ecf.provider.discovery,platform:/plugin/org.eclipse.ecf.provider.jmdns
+diff --git org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/plugin.xml org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/plugin.xml
+index d3f9f4f..27afb29 100644
+--- org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/plugin.xml
++++ org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/plugin.xml
+@@ -34,11 +34,4 @@
+          </description>
+       </wizard>
+    </extension>
+-   <extension
+-         point="org.eclipse.mylyn.builds.ui.startup">
+-      <startup
+-            class="org.eclipse.mylyn.internal.hudson.ui.HudsonStartup">
+-      </startup>
+-   </extension>
+-
+ </plugin>
