@@ -22,7 +22,7 @@ index 2a3b1f8..78c5cfa 100644
 + org.apache.lucene.core;bundle-version="[5.0.0,6.0.0)",
 + org.apache.lucene.queryparser;bundle-version="[5.0.0,6.0.0)",
 + org.apache.lucene.analyzers-common;bundle-version="[5.0.0,6.0.0)"
- Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
  Bundle-ActivationPolicy: lazy
  Export-Package: org.eclipse.mylyn.internal.tasks.index.core;x-internal:=true
 diff --git a/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskAnalyzer.java b/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskAnalyzer.java

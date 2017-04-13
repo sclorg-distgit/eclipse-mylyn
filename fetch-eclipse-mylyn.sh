@@ -2,7 +2,7 @@
 
 set -e
 
-RELEASE_TAG="R_3_19_0"
+RELEASE_TAG="e_4_5_m_3_20_x"
 FETCHED_SOURCES_NAME="eclipse-mylyn-${RELEASE_TAG}-fetched-src"
 
 #clean up old runs

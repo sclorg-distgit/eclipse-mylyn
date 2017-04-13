@@ -4,15 +4,15 @@
 
 %global baserelease 2
 
-%global tag R_3_19_0
-%global incubator_tag 4c800cb4e89aab31590a96fe961d56464d54383b
+%global tag e_4_5_m_3_21_x
+%global incubator_tag	e9e79d9d73ec879d0db2b909014e6e1dce7ab806
 
 %global droplets droplets
 
 Name:    %{?scl_prefix}eclipse-mylyn
 Summary: Eclipse Mylyn main feature.
-Version: 3.19.0
-Release: 3.%{baserelease}%{?dist}
+Version: 3.21.0
+Release: 1.%{baserelease}%{?dist}
 License: EPL
 URL: http://www.eclipse.org/mylyn
 
@@ -28,16 +28,10 @@ Patch1: %{pkg_name}-add-apache-xmlrpc.patch
 Patch2: %{pkg_name}-disable-online-tests.patch
 Patch3: %{pkg_name}-merge-incubator.patch
 Patch4: %{pkg_name}-bug-419133.patch
-%if 0%{?fedora} == 22
-Patch5: lucene4.patch
-%else
 Patch5: 0001-Compile-with-Lucene-5.patch
-%endif
-Patch6: %{pkg_name}-remove-nullable-annotation.patch
-Patch7: explicit-hamcrest-use.patch
-Patch8: %{pkg_name}-bree-bump.patch
-%if 0%{?fedora} == 25
-Patch10: rome.patch
+Patch6: explicit-hamcrest-use.patch
+%if 0%{?fedora} >= 25
+Patch7: rome.patch
 %endif
 BuildArch: noarch
 
@@ -49,7 +43,7 @@ BuildRequires: %{?scl_prefix}eclipse-license
 BuildRequires: %{?scl_prefix}eclipse-emf
 BuildRequires: %{?scl_prefix}tycho
 BuildRequires: %{?scl_prefix}eclipse-egit
-BuildRequires: %{?scl_prefix_java_common}lucene
+BuildRequires: %{?scl_prefix_java_common}lucene5
 BuildRequires: %{?scl_prefix_java_common}lucene5-queryparser
 BuildRequires: %{?scl_prefix_maven}maven-local
 BuildRequires: %{?scl_prefix_java_common}apache-commons-lang >= 2.6-6
@@ -59,7 +53,7 @@ BuildRequires: %{?scl_prefix_java_common}ws-commons-util >= 1.0.1-21
 BuildRequires: %{?scl_prefix_java_common}xmlrpc-client >= 3.1.3
 BuildRequires: %{?scl_prefix_java_common}xmlrpc-common >= 3.1.3
 BuildRequires: %{?scl_prefix_java_common}xmlrpc-server >= 3.1.3
-%if 0%{?fedora} == 25
+%if 0%{?fedora} >= 25
 BuildRequires: %{?scl_prefix}rome >= 1.6
 %else
 BuildRequires: %{?scl_prefix}rome >= 0.9-9
@@ -74,23 +68,19 @@ BuildRequires: %{?scl_prefix_java_common}hamcrest
 BuildRequires: %{?scl_prefix_java_common}objenesis
 BuildRequires: %{?scl_prefix}mockito
 BuildRequires: %{?scl_prefix_maven}maven-deploy-plugin
+BuildRequires: %{?scl_prefix_maven}maven-antrun-plugin
 BuildRequires: %{?scl_prefix_maven}maven-plugin-build-helper
 BuildRequires: %{?scl_prefix_maven}xml-maven-plugin
 BuildRequires: %{?scl_prefix}tika
 BuildRequires: %{?scl_prefix}tika-parsers
 BuildRequires: %{?scl_prefix_java_common}jsoup
-%if 0%{?fedora} == 25
+%if 0%{?fedora} >= 25
+BuildRequires: %{?scl_prefix_java_common}jdom
 BuildRequires: jdom2
 %endif
 BuildRequires: %{?scl_prefix}eclipse-ecf-runtime
 
 Requires:      %{?scl_prefix}eclipse-platform
-
-# Obsoletes/Provides added in F22
-Obsoletes: %{name}-ide < %{version}-%{release}
-Provides:  %{name}-ide = %{version}-%{release}
-Obsoletes: %{name}-context-team < %{version}-%{release}
-Provides:  %{name}-context-team = %{version}-%{release}
 
 %description
 Mylyn integrates task support into Eclipse. It supports offline editing
@@ -231,14 +221,9 @@ pushd org.eclipse.mylyn.tasks
 %patch5 -p1 -b .sav
 popd
 %patch6
-%patch7
+%if 0%{?fedora} >= 25
 pushd org.eclipse.mylyn.tasks
-%patch8 -p1
-popd
-
-%if 0%{?fedora} == 25
-pushd org.eclipse.mylyn.tasks
-%patch10 -p1
+%patch7 -p1
 popd
 %endif
 
@@ -251,10 +236,9 @@ rm -rf org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/src/org/eclipse/myly
 rm -rf org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/src/org/eclipse/mylyn/internal/hudson/ui/HudsonUiPlugin.java
 
 # Disable plugins we can live without (they are skipped by default anyway)
-for p in findbugs-maven-plugin maven-pmd-plugin jacoco-maven-plugin ; do
-  grep -l -r --include="pom.xml" $p . | \
-    ( while read pom_path; do %pom_remove_plugin :$p $pom_path ; done ) ;
-done
+%pom_remove_plugin -r :findbugs-maven-plugin
+%pom_remove_plugin -r :maven-pmd-plugin
+%pom_remove_plugin -r :jacoco-maven-plugin
 
 # Disable site modules, we don't need them
 for site in $(grep -l -r --include="pom.xml" eclipse-update-site .) ; do
@@ -272,7 +256,6 @@ done
 %pom_disable_module org.eclipse.mylyn.builds.development-feature org.eclipse.mylyn.builds
 sed -i -e '/\(gerrit\|reviews\)/d' org.eclipse.mylyn/org.eclipse.mylyn.tests/META-INF/MANIFEST.MF
 sed -i -e '/AllGerritTests/d' -e '/AllReviewsTests/d' org.eclipse.mylyn/org.eclipse.mylyn.tests/src/org/eclipse/mylyn/tests/All*Tests.java
-%pom_remove_dep ":org.eclipse.mylyn.gerrit.feature.feature.group" org.eclipse.mylyn/org.eclipse.mylyn.tests/pom.xml
 
 # Don't build artifacts that we don't ship
 %pom_disable_module org.eclipse.mylyn.commons.tck-feature org.eclipse.mylyn.commons
@@ -301,6 +284,8 @@ sed -i -e "s@<addMavenDescriptor>false<@<addMavenDescriptor>true<@" org.eclipse.
 %pom_set_parent org.eclipse.mylyn.tasks:org.eclipse.mylyn.tasks-parent:%{version}-SNAPSHOT org.eclipse.mylyn.tasks/org.eclipse.mylyn.trac.wiki-feature/pom.xml
 %pom_set_parent org.eclipse.mylyn.tasks:org.eclipse.mylyn.tasks-parent:%{version}-SNAPSHOT org.eclipse.mylyn.tasks/org.eclipse.mylyn.web.tasks/pom.xml
 %pom_set_parent org.eclipse.mylyn.tasks:org.eclipse.mylyn.tasks-parent:%{version}-SNAPSHOT org.eclipse.mylyn.tasks/org.eclipse.mylyn.web.tasks-feature/pom.xml
+%pom_xpath_set pom:parent/pom:version "%{version}-SNAPSHOT" org.eclipse.mylyn.versions/pom.xml
+%pom_xpath_set pom:parent/pom:version "%{version}-SNAPSHOT" org.eclipse.mylyn.docs/pom.xml
 
 rm org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/src/org/eclipse/mylyn/internal/hudson/ui/HudsonStartup.java
 
@@ -324,13 +309,13 @@ sed -i -e "s/JavaSE-1.7/JavaSE-1.8/g" org.eclipse.mylyn.tasks/org.eclipse.mylyn.
 sed -i -e "s|@NonNull||g" org.eclipse.mylyn.tasks/connector-bugzilla-rest/org.eclipse.mylyn.bugzilla.rest.core/src/org/eclipse/mylyn/internal/bugzilla/rest/core/RepositoryKey.java
 
 %mvn_package "::{target,pom}::" __noinstall
+%mvn_package ":*.test{s,_feature}" tests
+%mvn_package ":org.eclipse.mylyn.*development" tests
 %mvn_package "::jar:sources:" sdk
 %mvn_package ":*.sdk{,_feature}" sdk
 %mvn_package ":org.eclipse.mylyn.tests.util" sdk
 %mvn_package ":org.eclipse.mylyn.{context,commons}.sdk.util" sdk
 %mvn_package ":org.eclipse.mylyn.context.sdk.java" sdk
-%mvn_package ":org.eclipse.mylyn.*development" sdk
-%mvn_package ":*.test{s,_feature}" tests
 %mvn_package "org.eclipse.mylyn.builds:*hudson*" builds-hudson
 %mvn_package "org.eclipse.mylyn.builds:" builds
 %mvn_package "org.eclipse.mylyn.context:*cdt.mylyn*" context-cdt
@@ -346,14 +331,6 @@ sed -i -e "s|@NonNull||g" org.eclipse.mylyn.tasks/connector-bugzilla-rest/org.ec
 %mvn_package "org.eclipse.mylyn.versions:*subclipse*" versions-subclipse
 %mvn_package "org.eclipse.mylyn.versions:" versions
 %mvn_package "org.eclipse.mylyn{,.commons,.context,.context.features,.tasks}:" commons
-
-# TODO fix this
-for b in org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.commonmark.tests ; do
-  sed -i "/^Bundle-Localization/d" $b/META-INF/MANIFEST.MF
-  sed -i "s|META-INF/l10n/bundle\.properties|OSGI-INF/|" $b/build.properties
-  mkdir -p $b/OSGI-INF/l10n
-  mv $b/META-INF/l10n/bundle.properties $b/OSGI-INF/l10n/bundle.properties
-done
 %{?scl:EOF}
 
 
@@ -408,13 +385,24 @@ install %{SOURCE6} \
 %files tests -f .mfiles-tests
 
 %changelog
-* Fri Jul 29 2016 Mat Booth <mat.booth@redhat.com> - 3.19.0-3.2
-- Disable subclipse package
-- Always use droplets location
-- Relax jsoup version constraint
+* Thu Jan 19 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-1.2
+- Disable subclipse module
 
-* Fri Jul 29 2016 Mat Booth <mat.booth@redhat.com> - 3.19.0-3.1
+* Thu Jan 19 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-1.1
 - Auto SCL-ise package for rh-eclipse46 collection
+
+* Wed Dec 21 2016 Alexander Kurtakov <akurtako@redhat.com> 3.21.0-1
+- Update to upstream 3.21.0 release.
+
+* Tue Nov 08 2016 Mat Booth <mat.booth@redhat.com> - 3.20.2-2
+- Change tests packaging to avoid broken symlinks in sdk package
+- Move development features into tests package
+
+* Wed Aug 03 2016 Sopot Cela <scela@redhat.com> - 3.20.2-1
+- Upgrade to 3.20.2
+
+* Wed Jun 15 2016 Mikolaj Izdebski <mizdebsk@redhat.com> - 3.19.0-4
+- Add missing build-requires
 
 * Fri May 13 2016 Jeff Johnston <jjohnstn@redhat.com> 3.19.0-3
 - Add Requires for eclipse-ecf-runtime for eclipse-mylyn-hudson-builds

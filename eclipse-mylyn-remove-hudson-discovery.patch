@@ -4,7 +4,7 @@ index dc4a512..ab101b8 100644
 +++ org.eclipse.mylyn.builds/org.eclipse.mylyn.hudson.ui/META-INF/MANIFEST.MF
 @@ -20,5 +20,4 @@ Require-Bundle: org.eclipse.core.runtime,
  Bundle-ActivationPolicy: lazy
- Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
  Bundle-Localization: plugin
 -Export-Package: org.eclipse.mylyn.internal.hudson.ui;x-internal:=true
 -Bundle-Activator: org.eclipse.mylyn.internal.hudson.ui.HudsonUiPlugin
