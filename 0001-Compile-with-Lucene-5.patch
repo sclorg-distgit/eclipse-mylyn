@@ -19,9 +19,9 @@ index 2a3b1f8..78c5cfa 100644
   org.eclipse.mylyn.tasks.core;bundle-version="3.8.0",
   org.eclipse.mylyn.commons.core;bundle-version="3.8.0",
 - org.apache.lucene.core;bundle-version="[2.9.1,3.7.0)"
-+ org.apache.lucene.core;bundle-version="[5.0.0,6.0.0)",
-+ org.apache.lucene.queryparser;bundle-version="[5.0.0,6.0.0)",
-+ org.apache.lucene.analyzers-common;bundle-version="[5.0.0,6.0.0)"
++ org.apache.lucene.core;bundle-version="[5.0.0,7.0.0)",
++ org.apache.lucene.queryparser;bundle-version="[5.0.0,7.0.0)",
++ org.apache.lucene.analyzers-common;bundle-version="[5.0.0,7.0.0)"
  Bundle-RequiredExecutionEnvironment: JavaSE-1.8
  Bundle-ActivationPolicy: lazy
  Export-Package: org.eclipse.mylyn.internal.tasks.index.core;x-internal:=true
@@ -69,7 +69,7 @@ diff --git a/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/t
 index 90acbd2..78d8c0c 100644
 --- a/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskListIndex.java
 +++ b/org.eclipse.mylyn.tasks.index.core/src/org/eclipse/mylyn/internal/tasks/index/core/TaskListIndex.java
-@@ -17,6 +17,12 @@ import static org.eclipse.mylyn.tasks.core.data.TaskAttribute.META_INDEXED_AS_CO
+@@ -17,6 +17,12 @@
  import java.io.File;
  import java.io.FileNotFoundException;
  import java.io.IOException;
@@ -82,7 +82,7 @@ index 90acbd2..78d8c0c 100644
  import java.util.ArrayList;
  import java.util.Collection;
  import java.util.Collections;
-@@ -36,14 +42,18 @@ import java.util.logging.Logger;
+@@ -36,14 +42,18 @@
  import org.apache.lucene.document.DateTools;
  import org.apache.lucene.document.DateTools.Resolution;
  import org.apache.lucene.document.Document;
@@ -104,7 +104,7 @@ index 90acbd2..78d8c0c 100644
  import org.apache.lucene.search.BooleanClause;
  import org.apache.lucene.search.BooleanClause.Occur;
  import org.apache.lucene.search.BooleanQuery;
-@@ -57,7 +67,7 @@ import org.apache.lucene.store.Directory;
+@@ -57,7 +67,7 @@
  import org.apache.lucene.store.FSDirectory;
  import org.apache.lucene.store.LockObtainFailedException;
  import org.apache.lucene.store.NIOFSDirectory;
@@ -113,7 +113,7 @@ index 90acbd2..78d8c0c 100644
  import org.eclipse.core.runtime.Assert;
  import org.eclipse.core.runtime.CoreException;
  import org.eclipse.core.runtime.IProgressMonitor;
-@@ -437,7 +450,7 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -440,7 +450,7 @@
  						}
  					}
  					try {
@@ -122,7 +122,7 @@ index 90acbd2..78d8c0c 100644
  					} catch (IOException e) {
  						StatusHandler.log(new Status(IStatus.ERROR, TasksIndexCore.ID_PLUGIN,
  								"Cannot create task list index", e)); //$NON-NLS-1$
-@@ -591,12 +604,6 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -594,12 +604,6 @@
  					} catch (IOException e) {
  						StatusHandler.log(new Status(IStatus.ERROR, TasksIndexCore.ID_PLUGIN,
  								"Unexpected failure within task list index", e)); //$NON-NLS-1$
@@ -135,7 +135,7 @@ index 90acbd2..78d8c0c 100644
  					}
  
  				} else {
-@@ -674,12 +681,6 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -677,12 +681,6 @@
  				} catch (IOException e) {
  					StatusHandler.log(new Status(IStatus.ERROR, TasksIndexCore.ID_PLUGIN,
  							"Unexpected failure within task list index", e)); //$NON-NLS-1$
@@ -148,7 +148,7 @@ index 90acbd2..78d8c0c 100644
  				}
  			}
  		} finally {
-@@ -696,7 +697,7 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -699,7 +697,7 @@
  		if (!hasBooleanSpecifiers && defaultField.equals(FIELD_SUMMARY) && !containsSpecialCharacters(patternString)) {
  			return new PrefixQuery(new Term(defaultField.getIndexKey(), patternString));
  		}
@@ -157,7 +157,31 @@ index 90acbd2..78d8c0c 100644
  		Query q;
  		try {
  			q = qp.parse(patternString);
-@@ -769,7 +770,7 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -711,16 +709,20 @@
+ 		// to what we're expecting
+ 		// from previous task list search
+ 		if (q instanceof BooleanQuery) {
++			BooleanQuery.Builder qb = new BooleanQuery.Builder();
+ 			BooleanQuery query = (BooleanQuery) q;
+-			for (BooleanClause clause : query.getClauses()) {
++			for (BooleanClause clause : query.clauses()) {
+ 				if (clause.getQuery() instanceof TermQuery) {
+ 					TermQuery termQuery = (TermQuery) clause.getQuery();
+-					clause.setQuery(new PrefixQuery(termQuery.getTerm()));
++					clause = new BooleanClause(new PrefixQuery(termQuery.getTerm()), clause.getOccur());
++					qb.add(clause);
+ 				}
+ 				if (!hasBooleanSpecifiers) {
+-					clause.setOccur(Occur.MUST);
++					clause = new BooleanClause(clause.getQuery(), Occur.MUST);
++					qb.add(clause);
+ 				}
+ 			}
++			q = qb.build();
+ 		} else if (q instanceof TermQuery) {
+ 			return new PrefixQuery(((TermQuery) q).getTerm());
+ 		}
+@@ -774,7 +776,7 @@
  		try {
  			synchronized (this) {
  				if (indexReader == null) {
@@ -166,7 +190,7 @@ index 90acbd2..78d8c0c 100644
  					lastResults = null;
  				}
  				return indexReader;
-@@ -983,15 +984,14 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -988,15 +990,14 @@
  		if (value == null) {
  			return;
  		}
@@ -185,7 +209,7 @@ index 90acbd2..78d8c0c 100644
  			}
  		}
  	}
-@@ -1004,13 +1004,12 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -1009,13 +1010,12 @@
  		// move the date by the GMT offset if there is any
  
  		String value = DateTools.dateToString(date, Resolution.HOUR);
@@ -202,7 +226,7 @@ index 90acbd2..78d8c0c 100644
  		}
  	}
  
-@@ -1069,7 +1068,7 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -1074,7 +1074,7 @@
  			try {
  				if (!rebuildIndex) {
  					try {
@@ -211,7 +235,7 @@ index 90acbd2..78d8c0c 100644
  						reader.close();
  					} catch (CorruptIndexException e) {
  						rebuildIndex = true;
-@@ -1216,7 +1215,7 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -1221,7 +1221,7 @@
  				writer = createIndexWriter(true);
  			} catch (CorruptIndexException e) {
  				if (directory instanceof FSDirectory) {
@@ -220,7 +244,7 @@ index 90acbd2..78d8c0c 100644
  					writer = createIndexWriter(true);
  				} else {
  					throw e;
-@@ -1248,23 +1247,29 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -1253,23 +1253,29 @@
  		return multiStatus;
  	}
  
@@ -261,7 +285,7 @@ index 90acbd2..78d8c0c 100644
  	}
  
  	/**
-@@ -1283,8 +1288,7 @@ public class TaskListIndex implements ITaskDataManagerListener, ITaskListChangeL
+@@ -1288,8 +1294,7 @@
  
  		Document document = new Document();
  

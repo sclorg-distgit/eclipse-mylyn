@@ -1,0 +1,41 @@
+--- org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui/plugin.xml.orig	2017-01-31 14:25:17.501349322 +0000
++++ org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui/plugin.xml	2017-01-31 14:25:51.058991378 +0000
+@@ -12,8 +12,8 @@
+  -->
+ <plugin>
+ 	<extension point="org.eclipse.help.toc">
+-		<toc file="help/Mylyn WikiText User Guide-toc.xml" primary="false"/>
+-		<toc file="help/devguide/WikiText Developer Guide-toc.xml" primary="false"/>
++		<toc file="help/Mylyn-WikiText-User-Guide-toc.xml" primary="false"/>
++		<toc file="help/devguide/WikiText-Developer-Guide-toc.xml" primary="false"/>
+ 		<toc file="toc-sdk.xml" primary="false" />
+ 		<toc file="toc.xml" primary="true"/>
+ 	</extension>
+--- org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui/toc.xml.orig	2017-01-31 14:24:16.419000861 +0000
++++ org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui/toc.xml	2017-01-31 14:24:31.827836502 +0000
+@@ -9,9 +9,9 @@
+     Contributors:
+         David Green - initial API and implementation
+  -->
+-<toc label="Mylyn WikiText Documentation" link_to="../org.eclipse.mylyn.help.ui/primary-toc.xml#additions" topic="help/devguide/WikiText Developer Guide.html">
+-   <topic href="help/Mylyn WikiText User Guide.html" label="WikiText User Guide">
+-      <link toc="help/Mylyn WikiText User Guide-toc.xml"/>
++<toc label="Mylyn WikiText Documentation" link_to="../org.eclipse.mylyn.help.ui/primary-toc.xml#additions" topic="help/devguide/WikiText-Developer-Guide.html">
++   <topic href="help/Mylyn-WikiText-User-Guide.html" label="WikiText User Guide">
++      <link toc="help/Mylyn-WikiText-User-Guide-toc.xml"/>
+    </topic>
+    <anchor id="additions"/>
+ </toc>
+--- org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui/toc-sdk.xml.orig	2017-01-31 14:23:37.044420852 +0000
++++ org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui/toc-sdk.xml	2017-01-31 14:28:34.144229746 +0000
+@@ -9,6 +9,6 @@
+     Contributors:
+         David Green - initial API and implementation
+  -->
+-<toc label="Mylyn WikiText Developer Guide" link_to="../org.eclipse.mylyn.wikitext.help.sdk/toc.xml#first" topic="help/devguide/WikiText Developer Guide.html">
+-   <link toc="help/devguide/WikiText Developer Guide-toc.xml"/>
+-</toc>
+\ No newline at end of file
++<toc label="Mylyn WikiText Developer Guide" link_to="../org.eclipse.mylyn.wikitext.help.sdk/toc.xml#first" topic="help/devguide/WikiText-Developer-Guide.html">
++   <link toc="help/devguide/WikiText-Developer-Guide-toc.xml"/>
++</toc>

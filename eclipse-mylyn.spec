@@ -7,12 +7,10 @@
 %global tag e_4_5_m_3_21_x
 %global incubator_tag	e9e79d9d73ec879d0db2b909014e6e1dce7ab806
 
-%global droplets droplets
-
 Name:    %{?scl_prefix}eclipse-mylyn
 Summary: Eclipse Mylyn main feature.
 Version: 3.21.0
-Release: 1.%{baserelease}%{?dist}
+Release: 4.%{baserelease}%{?dist}
 License: EPL
 URL: http://www.eclipse.org/mylyn
 
@@ -33,6 +31,8 @@ Patch6: explicit-hamcrest-use.patch
 %if 0%{?fedora} >= 25
 Patch7: rome.patch
 %endif
+Patch8: fix-documentation.patch
+
 BuildArch: noarch
 
 BuildRequires: %{?scl_prefix}eclipse-pde >= 1:4.2.0
@@ -227,6 +227,15 @@ pushd org.eclipse.mylyn.tasks
 popd
 %endif
 
+# Fix documentation URL encoding errors
+%patch8
+pushd org.eclipse.mylyn.docs/org.eclipse.mylyn.wikitext.help.ui
+mv "help/Mylyn WikiText User Guide.textile" \
+    help/Mylyn-WikiText-User-Guide.textile
+mv "help/devguide/WikiText Developer Guide.textile" \
+    help/devguide/WikiText-Developer-Guide.textile
+popd
+
 # relax version constraint on jsoup
 find -name MANIFEST.MF -exec grep -l -e 'org\.jsoup' {} \; | xargs sed -i -e '/org\.jsoup/s/1.7.2/1.6.1/'
 
@@ -262,9 +271,10 @@ sed -i -e '/AllGerritTests/d' -e '/AllReviewsTests/d' org.eclipse.mylyn/org.ecli
 %pom_disable_module org.eclipse.mylyn.wikitext-standalone org.eclipse.mylyn.docs
 %pom_disable_module org.eclipse.mylyn.wikitext.core.maven org.eclipse.mylyn.docs
 
-# These are not intended to be shipped by upstream, see ebz#467669 and ebz#467694
+# These are not intended to be shipped by upstream, see ebz#467669 and ebz#467694 and ebz#260666
 %pom_disable_module org.eclipse.mylyn.commons.identity.ui org.eclipse.mylyn.commons
 %pom_disable_module org.eclipse.mylyn.docs.epub.ant.core org.eclipse.mylyn.docs
+%pom_disable_module org.eclipse.mylyn.help.sdk org.eclipse.mylyn.tasks
 
 # Correct bundle names
 sed -i -e "s/org.hamcrest;/org.hamcrest.core;/g" `find . -name MANIFEST.MF`
@@ -347,7 +357,13 @@ set -e -x
 %mvn_install
 
 install %{SOURCE6} \
-  %{buildroot}%{_datadir}/eclipse/%{droplets}/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
+  %{buildroot}%{_datadir}/eclipse/droplets/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
+
+# Remove uneeded extra symlinks
+# (optional dep guava, which we don't need at runtime)
+sed -i -e '/annotation/d' .mfiles* %{buildroot}/%{_datadir}/eclipse/droplets/mylyn*/eclipse/fragment.info
+rm -f %{buildroot}/%{_datadir}/eclipse/droplets/mylyn*/eclipse/plugins/*annotation* \
+      %{buildroot}/%{_datadir}/java/mylyn-tests/eclipse/plugins/*annotation*
 %{?scl:EOF}
 
 
@@ -360,7 +376,7 @@ install %{SOURCE6} \
 %files context-cdt -f .mfiles-context-cdt
 
 %files tasks-bugzilla -f .mfiles-tasks-bugzilla
-%{_datadir}/eclipse/%{droplets}/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
+%{_datadir}/eclipse/droplets/mylyn-tasks-bugzilla/eclipse/redhat-bugzilla-custom-transitions.txt
 
 %files tasks-trac -f .mfiles-tasks-trac
 
@@ -385,11 +401,21 @@ install %{SOURCE6} \
 %files tests -f .mfiles-tests
 
 %changelog
-* Thu Jan 19 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-1.2
+* Thu Mar 30 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-4.2
+- Rebuilt to regenerate symlinks
 - Disable subclipse module
 
-* Thu Jan 19 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-1.1
+* Thu Mar 30 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-4.1
 - Auto SCL-ise package for rh-eclipse46 collection
+
+* Thu Mar 30 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-4
+- Allow building against lucene 6
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.21.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Tue Jan 31 2017 Mat Booth <mat.booth@redhat.com> - 3.21.0-2
+- Fix URL encoding errors in documentation TOCs
 
 * Wed Dec 21 2016 Alexander Kurtakov <akurtako@redhat.com> 3.21.0-1
 - Update to upstream 3.21.0 release.
